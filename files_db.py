@@ -33,7 +33,6 @@ for root, dirnames, files in os.walk("Path_To_Directory_To_Scan"):
         print("Size: ", convert_size(info.st_size))
         print("Path Relative to Scan Point:", os.path.relpath(root))
         print("MD5 Hash: ", md5checksum(os.path.join(root, file)))
-        print("Path Relative to Scan Point:", os.path.relpath(root))
         print("Basename: ", file.split(".")[0])
         print("Extension: ", file.split(".")[1])
         print("Directory Name: ", os.path.split(root)[1])
