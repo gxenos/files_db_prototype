@@ -1,7 +1,7 @@
 import os
 import math
 import hashlib
-
+import argparse
 
 # Function to return size from bytes
 def convert_size(size_bytes):
@@ -25,7 +25,11 @@ def md5checksum(filepath):
     return m.hexdigest()
 
 
-for root, dirnames, files in os.walk("Path_To_Directory_To_Scan"):
+parser = argparse.ArgumentParser()
+parser.add_argument("path_to_scan", help="The path you wish to scan.")
+args = parser.parse_args()
+
+for root, dirnames, files in os.walk(args.path_to_scan):
     for file in files:
 
         info = os.stat(os.path.join(root, file))
