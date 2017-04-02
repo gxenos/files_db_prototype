@@ -25,7 +25,7 @@ def md5checksum(filepath):
     return m.hexdigest()
 
 
-for root, dirnames, files in os.walk("C:/Users/George/Documents/test_folder"):
+for root, dirnames, files in os.walk("Path_To_Directory_To_Scan"):
     for file in files:
 
         info = os.stat(os.path.join(root, file))
