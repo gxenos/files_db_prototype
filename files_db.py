@@ -2,6 +2,7 @@ import os
 import math
 import hashlib
 import argparse
+import sqlite3
 
 
 # Function to return size from bytes, transformed into KB,MB,etc
@@ -32,27 +33,66 @@ def main():
     parser.add_argument("path_to_scan", help="The path you wish to scan.")
     args = parser.parse_args()
 
+    conn = sqlite3.connect('files.db')
+    cursor = conn.cursor()
+
+    cursor.execute('''CREATE TABLE IF NOT EXISTS file(
+      FILE_ID INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
+      NAME TEXT NOT NULL,
+      SIZE TEXT NOT NULL,
+      PATH TEXT NOT NULL,
+      MD5 CHAR(32),
+      BASENAME TEXT NOT NULL,
+      EXTENSION TEXT,
+      DIRECTORY TEXT,
+      READ BOOLEAN,
+      WRITE BOOLEAN,
+      EXECUTE BOOLEAN
+    );''')
+
     for root, dirnames, files in os.walk(args.path_to_scan):
         for file in files:
 
             info = os.stat(os.path.join(root, file))
-            print("Name: ", file)  # Prints the name of the file, with its extension
-            print("Size: ", convert_size(info.st_size))  # Prints the size of the file using convert_size()
-            print("Path Relative to Scan Point:", os.path.relpath(root))  # Prints the path of the file relative to the scan point
-            print("MD5 Hash: ", md5checksum(os.path.join(root, file)))  # Prints the md5checksum of the file using md5checksum()
-            # Prints the basename and the extension of a file
-            if "." in file:
-                print("Basename: ", file.split(".")[0])
-                print("Extension: ", ".".join(file.split(".")[1:]))  # If more than one '.' exist
-            else:
-                print("Basename: ", file)
-                print("Extension: ", "No extension")  # If there are no '.' there is no extension
-
-            print("Directory Name: ", os.path.split(root)[1])
             permissions = info.st_mode
-            print("Read:", bool(permissions & 0o00400), "Write:", bool(permissions & 0o00200),"Execute:", bool(permissions & 0o00100))
-            print("-------------------------")
 
+
+            name = file;
+            size = convert_size(info.st_size)
+            path = os.path.relpath(root)
+            md5 = md5checksum(os.path.join(root, file))
+            if "." in file:
+                basename = file.split(".")[0]
+                extension = ".".join(file.split(".")[1:])
+            else:
+                basename = file
+                extension = ""
+            directory = os.path.split(root)[1]
+            read = 1 if bool(permissions & 0o00400) == True else 0
+            write = 1 if bool(permissions & 0o00200) == True else 0
+            execute = 1 if bool(permissions & 0o00100) == True else 0
+
+            cursor.execute(
+                '''INSERT INTO file(NAME,SIZE, PATH,MD5,BASENAME,EXTENSION,DIRECTORY,READ,WRITE,EXECUTE) VALUES(?, ?, ?, ?, ?, ?, ?, ?, ?, ?);''',(name, size, path, md5,basename, extension, directory, read, write, execute)
+            )
+
+            cursor.execute('''SELECT * FROM file''')
+
+            for row in cursor:
+                print("File ID: ", row[0])
+                print("Name:: ", row[1])
+                print("Size: ", row[2])
+                print("Path Relative to Scan Point: ", row[3])
+                print("MD5 Hash: ", row[4])
+                print("Basename ", row[5])
+                print("Extension: ", row[6])
+                print("Directory Name: ", row[7])
+                print("Read:  ", True if row[8] == 1 else False)
+                print("Write:  ", True if row[9] == 1 else False)
+                print("Execute:  ", True if row[10] == 1 else False)
+                print("----------------------")
+
+            conn.commit()
 
 if __name__ == "__main__":
     main()
