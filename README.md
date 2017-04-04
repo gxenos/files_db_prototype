@@ -7,11 +7,10 @@ Prints metadata about all the files of the specified directory.
 
 path_to_scan The path you wish to scan
 
-_Example files_db.py C:\Users\User\folder_to_scan_
+_Example files_db.py C:\Users\User\folder_to_scan
 
 
-
-Prints the following information for each file:
+Stores the following information for each file in an SQLite DB single file and then prints them:
 * Name
 * Size
 * Path Relative to Scan Point
@@ -22,4 +21,5 @@ Prints the following information for each file:
 
 Things to add the following days:
 1. ~~ArgParse to take the folder to scan as an argument~~
-2. SQLiteIntegration
+2. ~~SQLiteIntegration~~
+3. Argument for choosing db file name.
